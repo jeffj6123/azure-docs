@@ -119,6 +119,8 @@ EventStore is a feature offered by the platform that provides Service Fabric pla
 >[!NOTE]
 >As of Service Fabric version 6.4. the EventStore APIs are only available for Windows clusters running on Azure only. We are working on porting this functionality to Linux as well as our Standalone clusters.
 
+## Image Store Viewer
+Image store viewer is a feature offered if using Native Image Store that allows for viewing the current contents of the Image store and get file and folder information, along with removing files/folders. 
 
 ## Next steps
 * [Managing your Service Fabric applications in Visual Studio](service-fabric-manage-application-in-visual-studio.md)
