@@ -19,26 +19,11 @@ ms.author: mikhegn
 ---
 # Visualize your cluster with Service Fabric Explorer
 
-Service Fabric Explorer (SFX) is an open-source tool for inspecting and managing Azure Service Fabric clusters. Service Fabric Explorer is a desktop application for Windows, macOS and Linux.
+Service Fabric Explorer (SFX) is an open-source tool for inspecting and managing Azure Service Fabric clusters.
 
 ## Service Fabric Explorer download
 
 Use the following links to download Service Fabric Explorer as a desktop application:
-
-- Windows
-  - https://aka.ms/sfx-windows
-
-- Linux
-  - https://aka.ms/sfx-linux-x86
-  - https://aka.ms/sfx-linux-x64
-
-- macOS
-  - https://aka.ms/sfx-macos
-
-> [!NOTE]
-> The desktop version of Service Fabric Explorer can have more or fewer features than the cluster support. You can fall back to the Service Fabric Explorer version deployed to the cluster to ensure full feature compatibility.
->
->
 
 ### Running Service Fabric Explorer from the cluster
 
@@ -67,14 +52,14 @@ You can navigate through Service Fabric Explorer by using the tree on the left. 
 ### View the cluster's layout
 Nodes in a Service Fabric cluster are placed across a two-dimensional grid of fault domains and upgrade domains. This placement ensures that your applications remain available in the presence of hardware failures and application upgrades. You can view how the current cluster is laid out by using the cluster map.
 
+You can filter by node name, node type, and health state.
+
 ![Service Fabric Explorer cluster map][sfx-cluster-map]
 
 ### View applications and services
 The cluster contains two subtrees: one for applications and another for nodes.
 
 You can use the application view to navigate through Service Fabric's logical hierarchy: applications, services, partitions, and replicas.
-
-In the example below, the application **MyApp** consists of two services, **MyStatefulService** and **WebService**. Since **MyStatefulService** is stateful, it includes a partition with one primary and two secondary replicas. By contrast, WebSvcService is stateless and contains a single instance.
 
 ![Service Fabric Explorer application view][sfx-application-tree]
 
@@ -88,9 +73,9 @@ The node view shows the physical layout of the cluster. For a given node, you ca
 ## Actions
 Service Fabric Explorer offers a quick way to invoke actions on nodes, applications, and services within your cluster.
 
-For example, to delete an application instance, choose the application from the tree on the left, and then choose **Actions** > **Delete Application**.
+For example, to restart a node, choose the node from the tree on the left, and then choose **Actions** > **Restart Node**.
 
-![Deleting an application in Service Fabric Explorer][sfx-delete-application]
+![Deleting an application in Service Fabric Explorer][sfx-action]
 
 > [!TIP]
 > You can perform the same actions by clicking the ellipsis next to each element.
@@ -99,22 +84,41 @@ For example, to delete an application instance, choose the application from the 
 >
 >
 
-You can also use Service Fabric Explorer to create application instances for a given application type and version. Choose the application type in the tree view, then click the **Create app instance** link next to the version you'd like in the right pane.
-
-![Creating an application instance in Service Fabric Explorer][sfx-create-app-instance]
-
-> [!NOTE]
-> Service Fabric Explorer does not support parameters when creating application instances. Application instances use default parameter values.
->
->
-
 ## Event Store
 EventStore is a feature offered by the platform that provides Service Fabric platform events available in the Service Fabric Explorer and through REST API. You can see a snapshot view of what's going on in your cluster for each entity e.g. node, service, application and query based on the time of the event. You can also Read more about the EventStore at the [EventStore Overview](service-fabric-diagnostics-eventstore.md).   
 
+Service Fabric Explorer provides two ways to interpret these events; the timeline and the list view. The timeline will usually be one of the first places used when investigating key events in a cluster. The timeline can be overlapped with some other entities(nodes and cluster).
+
+For example if you see logging from your application that implies it restarted multiple times in an hour, you could use the application's event tab to see what the exit reason was and if there were any cluster upgrades in that time range. The event store viewer can provide a lot of information for initially investigating an issue in a cluster.
+
+Some other high value events are :
+  * Previous Cluster Upgrades
+  * Node Down
+  * Application Process Exits
+  * Partition Primary Swaps
+
+When is this tab most useful?
+* Historical information
+
 ![EventStore][sfx-eventstore]
 
->[!NOTE]
->As of Service Fabric version 6.4. EventStore is not enabled by default and must be enabled in the resource manager template
+## Repair Jobs
+![overview][sfx-repair-job-overview]
+Repair jobs can be used to perform node operations like restart, usually requested by either the customer owner or another azure resource like VMSS. The repair job manager is enabled by default for silver reliability clusters and above. This tab can be very useful when investigating why a node or nodes went down recently. There are two different ways to look at all the jobs together by using the timeline viewer or the duration graph. The duration graph can be useful when needing to see if there are jobs that are outliers.
+
+![duration graph][sfx-duration-graph]
+
+> [!NOTE]
+> You can filter and order the Pending and Completed Jobs tables and this will be reflected in the two graphs. This is a very easy way to only look for jobs affecting a particular node or timeframe.
+
+When you expand a repair job you can see an overview of the job; a timeline showing time spent in each phase, executor job data which is included with most azure jobs and a full description for any other related information. If it is an active job you will also see all nodes impacted and targeted with their current status.
+
+![repair job in progress][sfx-repair-job-in-progress]
+
+When is this tab most useful?
+* Stuck disabling nodes
+* Stuck VMSS operations like restart or reimage
+* Viewing recent repair jobs
 
 >[!NOTE]
 >As of Service Fabric version 6.4. the EventStore APIs are only available for Windows clusters running on Azure only. We are working on porting this functionality to Linux as well as our Standalone clusters.
@@ -124,6 +128,11 @@ Image store viewer is a feature offered if using Native Image Store that allows 
 
 ![Service Fabric Explorer cluster map][sfx-imagestore]
 
+When is this tab most useful?
+* Missing Imagestore files
+* Determining Imagestore content size
+* Removing old Imagestore content
+
 
 ## Next steps
 * [Managing your Service Fabric applications in Visual Studio](service-fabric-manage-application-in-visual-studio.md)
@@ -131,10 +140,14 @@ Image store viewer is a feature offered if using Native Image Store that allows 
 
 <!--Image references-->
 [sfx-cluster-dashboard]: ./media/service-fabric-visualizing-your-cluster/SfxClusterDashboard.png
-[sfx-cluster-map]: ./media/service-fabric-visualizing-your-cluster/SfxClusterMap.png
+[sfx-cluster-map]: ./media/service-fabric-visualizing-your-cluster/SfxClusterMap.gif
 [sfx-application-tree]: ./media/service-fabric-visualizing-your-cluster/SfxApplicationTree.png
 [sfx-service-essentials]: ./media/service-fabric-visualizing-your-cluster/SfxServiceEssentials.png
-[sfx-delete-application]: ./media/service-fabric-visualizing-your-cluster/SfxDeleteApplication.png
+[sfx-action]: ./media/service-fabric-visualizing-your-cluster/SfxAction.png
 [sfx-create-app-instance]: ./media/service-fabric-visualizing-your-cluster/SfxCreateAppInstance.png
 [sfx-eventstore]: ./media/service-fabric-diagnostics-eventstore/eventstore.png
 [sfx-imagestore]: ./media/service-fabric-visualizing-your-cluster/SfxImageStore.png
+
+[sfx-repair-job-in-progress]: ./media/service-fabric-visualizing-your-cluster/SfxRepairJobInProgress.png
+[sfx-repair-job-overview]: ./media/service-fabric-visualizing-your-cluster/SfxRepairJobOverview.png
+[sfx-duration-graph]: ./media/service-fabric-visualizing-your-cluster/SfxDurationGraph.png
